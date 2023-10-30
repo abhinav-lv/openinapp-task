@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { oAuth2Client } from "../lib/utils";
+import { oAuth2Client, timeouts } from "../lib/utils";
 import { google } from "googleapis";
 
 export const authenticate = async (req: Request, res: Response) => {
@@ -50,8 +50,8 @@ export const logout = (req: Request, res: Response) => {
   try {
     if (req.session.user) {
       // Clear the reply process if it had been initiated
-      if (req.session.user.intervalHandle) {
-        clearInterval(req.session.user.intervalHandle);
+      if (timeouts[req.session.user.email]) {
+        clearInterval(timeouts[req.session.user.email]);
       }
       // Destory user session and logout
       req.session.destroy((err: any) => {

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import findThreadsAndReply from "../lib/findThreadsAndReply";
 import createLabelIfNotExists from "../lib/createLabelIfNotExists";
-import { oAuth2Client, getRandom } from "../lib/utils";
+import { oAuth2Client, getRandom, timeouts } from "../lib/utils";
 
 export const userActions = (req: Request, res: Response) => {
   try {
@@ -22,7 +22,7 @@ export const userActions = (req: Request, res: Response) => {
   }
 };
 
-export const initiateReplies = (req: Request, res: Response) => {
+export const initiateReplies = async (req: Request, res: Response) => {
   try {
     // Check if user is logged in
     if (req.session?.user) {
@@ -49,7 +49,8 @@ export const initiateReplies = (req: Request, res: Response) => {
           tokens: req.session.user.tokens,
         }
       );
-      req.session.user.intervalHandle = intervalHandle;
+
+      timeouts[req.session.user.email] = intervalHandle;
 
       // Send response back
       res.status(200).send(`
